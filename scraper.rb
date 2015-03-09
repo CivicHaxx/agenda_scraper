@@ -23,6 +23,10 @@ def report_params(month, year)
   }
 end
 
+def council_agenda_url(id)
+  "http://app.toronto.ca/tmmis/viewPublishedReport.do?function=getCouncilAgendaReport&meetingId=#{id}"
+end
+
 def agenda_url(id)
   "http://app.toronto.ca/tmmis/viewPublishedReport.do?function=getAgendaReport&meetingId=#{id}"
 end
@@ -35,15 +39,20 @@ calendar_page = Net::HTTP.post_form(base, report_params(1, 2015)).body
 
 page = Nokogiri::HTML(calendar_page)
 
-meeting_links = page.css("#calendarList .list-item a").map{|x| x.attr('href') }
+meeting_links = page.css("#calendarList .list-item a").map do |anchor| 
+  anchor.attr('href') if anchor.text.include? "City Council"
+end.reject(&:nil?)
 
 agenda_urls = meeting_links.map do |meeting_link|
   puts "Checking #{meeting_link}"
   site = "http://app.toronto.ca" + meeting_link
   agenda_list = Nokogiri::HTML(open(site))
 
-  agenda_list.css("#accordion h3").map{|x| x.attr('id').gsub("header", "") }.map{|id| agenda_url(id) }
+  agenda_list.css("#accordion h3").map do |x| 
+      x.attr('id').gsub("header", "")
+  end.map{|id| council_agenda_url(id) }
 end.flatten.uniq.sort
+
 
 agenda_urls.each do |url|
   file_name = url.split("=").last + ".html"
