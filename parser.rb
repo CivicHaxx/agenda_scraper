@@ -16,14 +16,16 @@ items = sections.map { |item| Nokogiri::HTML(item) }
 items.each do |item|
 	item_number = item.xpath('//table[@class="border"]/tr/td/font[@size="5"]').text
 	unless item_number.empty?
-		item_type = item.xpath('//table[@class="border"]/tr/td/p/font').first.text
+		item_type = item.xpath('//table[@class="border"]/tr/td/p/font').first.text.capitalize.chop
+		ward = item.xpath('//table[@class="border"]/tr/td/p/font').last.text.chop
+		item_title = item.xpath('//table/tr/td/font/b').first.text
+		item_tables = item.xpath('//table')
+		raw_html = item.xpath('//table')[2..item_tables.length]
+		binding.pry if item_number == "IA3.3"
 	end
 end
 
-item.xpath('//table[@class="border"]/tr/td > td/font[@size="5"]').text
 
-
-binding.pry
 
 print ""
 
@@ -34,5 +36,4 @@ print ""
 # - recommendation
 # - decision_text
 # - background information 
-# - ward
 
