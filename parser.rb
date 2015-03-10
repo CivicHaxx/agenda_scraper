@@ -21,17 +21,28 @@ items.each do |item|
 		item_title = item.xpath('//table/tr/td/font/b').first.text
 		item_tables = item.xpath('//table')
 		raw_html = item.xpath('//table')[2..item_tables.length]
-		binding.pry if item_number == "IA3.3"
+		
+		if item_number.start_with? "MM"
+			member_motion = item.xpath('//table/tr/td/font/b').first.text
+		puts "#{item_number} #{member_motion}" 	
+			member_motion = item.xpath('//table/tr/td/font/b')[1].text if member_motion.start_with? "Member Motions"
+			by = member_motion.split(" - by ")
+			councillor = by[1].split(", seconded by ")
+# binding.pry if item_number == "MM3.1"
+			# binding.pry if item_number == "MM3.35"
+		end
 	end
 end
 
-
+binding.pry
 
 print ""
 
 
 
 # - councillor_id (member motion)
+
+
 # - summary
 # - recommendation
 # - decision_text
