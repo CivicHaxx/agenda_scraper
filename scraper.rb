@@ -1,4 +1,3 @@
-
 #viewPublishedReport.do? getCouncilMinutesReport
                         #getMemberVoteReport
 #viewPublishedReport.do? getAgendaReport
@@ -32,7 +31,7 @@ def agenda_url(id)
 end
 
 def save(file_name, input)
-  File.open(file_name, 'w') {|f| f.write(input) }
+  File.open("agendas/#{file_name}", 'w') {|f| f.write(input) }
 end
 
 calendar_page = Net::HTTP.post_form(base, report_params(1, 2015)).body

@@ -2,19 +2,17 @@ require "nokogiri"
 require	"awesome_print"
 require "pry"
 
-file = File.open("9688.html").read
-items = file.scrub.split("<br clear=\"all\">")
+file = File.open("agendas/9688.html").read
+sections = file.scrub.split("<br clear=\"all\">     <table class=\"border\`"")
 
-preview = items.map do |item|
-	"<div style='border: 1px solid red; margin-bottom: 50px'>#{item}</div>"
+preview = sections.map do |section|
+	"<div style='border: 2px solid red; margin-bottom: 50px'> <table class=\"border\"#{section}</div>"
 end.join
 
 File.open("tester.html", 'w') {|f| f.write(preview) }
 
+items = sections.map { |section| Nokogiri::HTML(section) }
 
-# doc = Nokogiri::HTML(File.open("9688.html"))
-# doc.xpath("//table").css(".border")
+binding.pry
 
-# binding.pry
-
-# print ""
+print ""
