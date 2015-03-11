@@ -1,7 +1,3 @@
-#viewPublishedReport.do? getCouncilMinutesReport
-                        #getMemberVoteReport
-#viewPublishedReport.do? getAgendaReport
-
 require "net/http"
 require "nokogiri"
 require "open-uri"
@@ -52,14 +48,9 @@ agenda_urls = meeting_links.map do |meeting_link|
   end.map{|id| council_agenda_url(id) }
 end.flatten.uniq.sort
 
-
 agenda_urls.each do |url|
   file_name = url.split("=").last + ".html"
   puts "Saving #{file_name}"
   html = open(url).read
   save(file_name, html)
 end
-
-binding.pry
-
-puts ""
