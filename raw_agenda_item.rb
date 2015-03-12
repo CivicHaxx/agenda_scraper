@@ -35,11 +35,9 @@ class RawAgendaItem
 				current_section = node.text
 				sections[current_section] = ""
 			else
-				pp node.to_s
 				sections[current_section] << node.to_s
 			end
 		end.flatten
-		binding.pry
 	end
 
 	def to_s

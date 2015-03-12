@@ -29,6 +29,6 @@ class RawAgenda
 	end
 
 	def save
-		File.open(filename, 'w') {|f| f.write(content) } if !File.exist?(filename)		  
+		File.open(filename, 'w') {|f| f.write(content) }		  
 	end
 end
