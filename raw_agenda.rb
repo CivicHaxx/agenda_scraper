@@ -14,7 +14,7 @@ class RawAgenda
 	end
 
 	def url
-		URI "http://app.toronto.ca/tmmis/viewPublishedReport.do?"
+		URI "#{BASE_URI}viewPublishedReport.do?"
 	end
 
 	def agenda_params(meeting_id)

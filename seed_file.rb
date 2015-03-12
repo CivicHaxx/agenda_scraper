@@ -1,11 +1,12 @@
-require "net/http"
-require "nokogiri"
-require "open-uri"
-require "pry"
-require "awesome_print"
+require          "net/http"
+require          "nokogiri"
+require          "open-uri"
+require          "pry"
+require          "awesome_print"
 require_relative "raw_agenda"
 require_relative "raw_agenda_item"
 
+BASE_URI             = "http://app.toronto.ca/tmmis/"
 SECTION_HEADER_TABLE = "//table[@class='border']/tr/td"
 
 def calendar_params(month, year)
@@ -20,9 +21,7 @@ def calendar_params(month, year)
   }
 end
 
-base_uri     = "http://app.toronto.ca/tmmis/"
-calendar_uri = URI("#{base_uri}meetingCalendarView.do")
-report_uri   = URI("#{base_uri}viewPublishedReport.do?")
+calendar_uri = URI("#{BASE_URI}meetingCalendarView.do")
 meeting_ids  = []
 
 12.times do |i|
@@ -39,13 +38,13 @@ end
 meeting_ids.flatten!
 
 meeting_ids.map do |id|
-  ap " ★  Checking #{id} ★  ", options = { color: { string: :white }}
+  ap "Checking #{id} ★  ", options = { color: { string: :white }}
 	RawAgenda.new(id).save
 end
 
 #parser starts
 meeting_ids.each do |id|
-  ap " ⚡  Parsing #{id} ⚡  ", options = { color: { string: :white }}
+  ap "Parsing #{id} ⚡  ", options = { color: { string: :white }}
   content  = open("agendas/#{id}.html") { |f| f.read }
 	sections = content.scrub.split("<br clear=\"all\">")
 	items    = sections.map { |item| Nokogiri::HTML(item) }
