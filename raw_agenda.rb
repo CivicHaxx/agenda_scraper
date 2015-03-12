@@ -25,17 +25,10 @@ class RawAgenda
 	end
 
 	def content
-		@content = Net::HTTP.post_form(url, agenda_params(id)).body
-		# @content ||= begin
-		# 	if File.exist?(filename)
-		# 		open(filename).read
-		# 	else
-		# 		Net::HTTP.post_form(url, agenda_params(id)).body
-		# 	end
-		# end
+		Net::HTTP.post_form(url, agenda_params(id)).body
 	end
 
 	def save
-	  File.open(filename, 'w') {|f| f.write(content) }
+		File.open(filename, 'w') {|f| f.write(content) } if !File.exist?(filename)		  
 	end
 end

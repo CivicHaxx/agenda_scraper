@@ -47,12 +47,12 @@ meeting_ids.each do |id|
 	items.each do |item|
 		item_number = item.xpath("//table[@class='border']/tr/td/font[@size='5']").text
 		
-		# unless item_number.empty?
-		# 	File.open('dumping_to.txt', 'ab') do |f|
-		# 		raw_item = RawAgendaItem.parse(item_number, item)
-		# 		#f.puts raw_item.to_s
-		# 	end
-		# end
+		unless item_number.empty?
+			File.open('dumping_#{id}_to.txt', 'ab') do |f|
+				raw_item = RawAgendaItem.parse(item_number, item)
+				#f.puts raw_item.to_s
+			end
+		end
 	end
 end
 

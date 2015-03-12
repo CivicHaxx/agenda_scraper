@@ -9,45 +9,38 @@ class RawAgendaItem
 	end
 
 	def initialize(number: nil, type: nil, ward: nil, title: nil, contents: nil)
-		@number   = number
-		@type     = type
-		@ward     = ward
-		@title    = title
+		@number 	= number
+		@type 		= type
+		@ward 		= ward
+		@title 		= title
+		
+		keywords = [
+			"Recommendations",
+			"Decision Advice and Other Information",
+			"Origin",
+			"Summary",
+			"Background Information",
+			"Speakers",
+			"Communications",
+			"Declared Interests"
+		]
+
+		sections = Hash.new('')
+		current_section = ""
+
 		@contents = contents.css('td').map do |node|
 			if node.css('p').length > 0
-				node.css('p')#.map(&:text)
+				sections[current_section] << node.css('p').map(&:text).join(" ")
+			elsif node.css('b').length > 0 && keywords.any? { |keyword| node.text[keyword] }
+				current_section = node.text
+				sections[current_section] = ""
 			else
-				node.css('b')
+				pp node.to_s
+				sections[current_section] << node.to_s
 			end
 		end.flatten
-		@recommendations = separate_recs_and_text(contents)
-		@supplementary_text
+		binding.pry
 	end
-
-	def separate_recs_and_text(contents)
-		# if type == ACTION && node.matches?("b") && node.contains("Recommendations")
-		# 	then we want to save the data after that
-		# if node.matches?("b") && !node.contains("Recommendations")
-		# 	then we want save from here to the end of the item as html
-
-		sections = contents.select { |e| e.name = "b" }
-
-		sections.each do |section|
-			if section.css("b").text == "Recommendations"
-				@recommendations = section.css("p")
-			end
-		end
-	end
-		# key_words = [
-		# 	"Recommendations",
-		# 	"Decision Advice and Other Information",
-		# 	"Origin",
-		# 	"Summary",
-		# 	"Background Information",
-		# 	"Speakers",
-		# 	"Communications",
-		# 	"Declared Interests"
-		# 	]
 
 	def to_s
 		[
@@ -55,7 +48,6 @@ class RawAgendaItem
 			"Title: #{@title}",
 			"Ward: #{@ward}",
 			"Type: #{@type}",
-			"Recommendations: #{@recommendations}",
 			"-------",
 			@contents.join("\n")
 		].join("\n")
