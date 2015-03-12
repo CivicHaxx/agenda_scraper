@@ -24,8 +24,8 @@ end
 calendar_uri = URI("#{BASE_URI}meetingCalendarView.do")
 meeting_ids  = []
 
-12.times do |i|
-  calendar_page = Net::HTTP.post_form(calendar_uri, calendar_params(i, 2015)).body
+# 12.times do |i|
+  calendar_page = Net::HTTP.post_form(calendar_uri, calendar_params(12, 2014)).body
   page          = Nokogiri::HTML(calendar_page)
   anchors       = page.css("#calendarList .list-item a")
   anchors       = anchors.to_ary
@@ -33,32 +33,34 @@ meeting_ids  = []
   meeting_ids << anchors.map do |a|
     a.attr("href").split("=").last if a.text.include? "City Council"
   end.reject(&:nil?).uniq
-end
+# end
 
 meeting_ids.flatten!
 
+puts "I found #{meeting_ids.length} meeting IDs."
+binding.pry
 meeting_ids.map do |id|
-  ap "Checking #{id} ★  ", options = { color: { string: :white }}
+  puts "Saving #{id} ✔ "
 	RawAgenda.new(id).save
 end
 
 #parser starts
 meeting_ids.each do |id|
-  ap "Parsing #{id} ⚡  ", options = { color: { string: :white }}
+  puts "Parsing #{id} ⚡  "
   content  = open("agendas/#{id}.html") { |f| f.read }
 	sections = content.scrub.split("<br clear=\"all\">")
 	items    = sections.map { |item| Nokogiri::HTML(item) }
 	items.each do |item|
 		item_number = item.xpath("#{SECTION_HEADER_TABLE}/font[@size='5']").text
 		
-		unless item_number.empty?
-			File.open('dumping_to.txt', 'ab') do |f|
-				raw_item = RawAgendaItem.parse(item_number, item)
-				#f.puts raw_item.to_s
-			end
-		end
+		# unless item_number.empty?
+		# 	File.open('dumping_to.txt', 'ab') do |f|
+		# 		raw_item = RawAgendaItem.parse(item_number, item)
+		# 		#f.puts raw_item.to_s
+		# 	end
+		# end
 	end
 end
 
-puts "" 
+puts "★ ★ ★ ★ ★ ★ ★ ★ ★ ★ " 
 
