@@ -39,18 +39,17 @@ end
 meeting_ids.flatten!
 
 meeting_ids.map do |id|
-  puts "Checking #{id}"
+  ap "Checking #{id}"
 	RawAgenda.new(id).save
 end
 
 #parser starts
 meeting_ids.each do |id|
-  puts "Parsing #{id}"
-
-  content  = open("agendas/#{id}.html")
+  ap " ⚡  Parsing #{id} ⚡ "
+  content  = open("agendas/#{id}.html") { |f| f.read }
 	sections = content.scrub.split("<br clear=\"all\">")
 	items    = sections.map { |item| Nokogiri::HTML(item) }
-
+binding.pry
 	items.each do |item|
 		item_number = item.xpath("#{SECTION_HEADER_TABLE}/font[@size='5']").text
 		
