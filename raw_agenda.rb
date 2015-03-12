@@ -1,4 +1,4 @@
-class CityCouncilAgenda
+class RawAgenda
 	attr_reader :id
 	
 	def initialize(id)
@@ -34,7 +34,6 @@ class CityCouncilAgenda
 		# 	end
 		# end
 	end
-		binding.pry
 
 	def save
 	  File.open(filename, 'w') {|f| f.write(content) }
