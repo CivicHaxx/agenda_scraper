@@ -3,46 +3,39 @@ require "nokogiri"
 require "open-uri"
 require "pry"
 require "awesome_print"
-
 require_relative "city_council_agenda"
 require_relative "raw_agenda_item"
 
 SECTION_HEADER_TABLE = "//table[@class='border']/tr/td"
 
-def report_params(month, year)
+def calendar_params(month, year)
   {
-    function:        "meetingCalendarView",
-    isToday:         "false",
-    expand:          "N",
-    view:            "List",
-    selectedMonth:   month,
-    selectedYear:    year,
-    includeAll:      "on"
+    function:      "meetingCalendarView",
+    isToday:       "false",
+    expand:        "N",
+    view:          "List",
+    selectedMonth: month,
+    selectedYear:  year,
+    includeAll:    "on"
   }
 end
 
-base 					= URI("http://app.toronto.ca/tmmis/meetingCalendarView.do")
-calendar_page = Net::HTTP.post_form(base, report_params(1, 2015)).body
-page 					= Nokogiri::HTML(calendar_page)
+base_uri        = "http://app.toronto.ca/tmmis/"
+calendar_uri    = URI("#{base_uri}meetingCalendarView.do")
+report_uri      = URI("#{base_uri}viewPublishedReport.do?")
+meeting_ids   = []
 
-meeting_links = page.css("#calendarList .list-item a").map do |anchor| 
-  anchor.attr('href') if anchor.text.include? "City Council"
-end.reject(&:nil?).uniq
+12.times do |i|
+  calendar_page = Net::HTTP.post_form(calendar_uri, calendar_params(i, 2015)).body
+  page          = Nokogiri::HTML(calendar_page)
+  anchor        = page.css("#calendarList .list-item a")
+  meeting_ids << anchor.attr('href').text.split("=").last if anchor.text.include? "City Council"
+end
 
-council_agendas = meeting_links.map do |meeting_link|
-	puts "Checking #{meeting_link}"
-
-  site 				= "http://app.toronto.ca" + meeting_link
-  agenda_list = Nokogiri::HTML(open(site))
-
-  agenda_ids = agenda_list.css("#accordion h3").map do |x| 
-    x.attr('id').gsub("header", "")
-  end.uniq
-
-  agenda_ids.map do |id|
-  	CityCouncilAgenda.new(id)
-  end
-end.flatten
+council_agendas = meeting_ids.map do |meeting_id|
+  puts "Checking #{meeting_id}"
+	CityCouncilAgenda.new(meeting_id).save
+end
 
 # council_agendas.each do |agenda|
 #   puts "Saving #{agenda.name}"
@@ -52,6 +45,8 @@ end.flatten
 #parser starts
 
 council_agendas.each do |agenda|
+  print "]"
+  binding.pry
 	sections 	= agenda.content.scrub.split("<br clear=\"all\">")
 	items			= sections.map { |item| Nokogiri::HTML(item) }
 
@@ -61,7 +56,7 @@ council_agendas.each do |agenda|
 		unless item_number.empty?
 			File.open('dumping_to.txt', 'ab') do |f|
 				raw_item = RawAgendaItem.parse(item_number, item)
-				f.puts raw_item.to_s
+				#f.puts raw_item.to_s
 			end
 		end
 	end

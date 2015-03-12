@@ -14,18 +14,27 @@ class CityCouncilAgenda
 	end
 
 	def url
-		"http://app.toronto.ca/tmmis/viewPublishedReport.do?function=getCouncilAgendaReport&meetingId=#{@id}"
+		URI "http://app.toronto.ca/tmmis/viewPublishedReport.do?"
+	end
+
+	def agenda_params(meeting_id)
+	  {
+	    function:  "getCouncilAgendaReport",
+	    meetingId: meeting_id
+	  }
 	end
 
 	def content
-		@content ||= begin
-			if File.exist?(filename)
-				open(filename).read
-			else
-				open(url).read
-			end
-		end
+		@content = Net::HTTP.post_form(url, agenda_params(id)).body
+		# @content ||= begin
+		# 	if File.exist?(filename)
+		# 		open(filename).read
+		# 	else
+		# 		Net::HTTP.post_form(url, agenda_params(id)).body
+		# 	end
+		# end
 	end
+		binding.pry
 
 	def save
 	  File.open(filename, 'w') {|f| f.write(content) }
