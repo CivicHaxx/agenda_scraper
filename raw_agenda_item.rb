@@ -13,43 +13,32 @@ class RawAgendaItem
 		@type 		= type
 		@ward 		= ward
 		@title 		= title
+		
+		keywords = [
+			"Recommendations",
+			"Decision Advice and Other Information",
+			"Origin",
+			"Summary",
+			"Background Information",
+			"Speakers",
+			"Communications",
+			"Declared Interests"
+		]
+
+		sections = Hash.new('')
+		current_section = ""
+
 		@contents = contents.css('td').map do |node|
 			if node.css('p').length > 0
-				node.css('p')#.map(&:text)
+				sections[current_section] << node.css('p').map(&:text).join(" ")
+			elsif node.css('b').length > 0 && keywords.any? { |keyword| node.text[keyword] }
+				current_section = node.text
+				sections[current_section] = ""
 			else
-				node.css('b')
+				sections[current_section] << node.text
 			end
 		end.flatten
-		@recommendations = separate_recs_and_text(contents)
-		@supplementary_text
 	end
-
-	def separate_recs_and_text(contents)
-		# if type == ACTION && node.matches?("b") && node.contains("Recommendations")
-		# 	then we want to save the data after that
-		# if node.matches?("b") && !node.contains("Recommendations")
-		# 	then we want save from here to the end of the item as html
-		
-		headers = contents.select { |e| e.matches?("b") }
-
-		headers.each do |header|
-			if header.text.include?("Recommendations")
-				@this_index = contents.index(header)
-			end
-		end
-		binding.pry
-
-	end
-		# key_words = [
-		# 	"Recommendations",
-		# 	"Decision Advice and Other Information",
-		# 	"Origin",
-		# 	"Summary",
-		# 	"Background Information",
-		# 	"Speakers",
-		# 	"Communications",
-		# 	"Declared Interests"
-		# 	]
 
 	def to_s
 		[
