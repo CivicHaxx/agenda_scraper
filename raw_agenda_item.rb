@@ -1,7 +1,7 @@
 class RawAgendaItem
 	def self.parse(item_number, item)
-		item_type   = item.xpath("#{SECTION_HEADER_TABLE}/p/font").first.text.capitalize.chop
-		ward        = item.xpath("#{SECTION_HEADER_TABLE}/p/font").last.text.chop
+		item_type   = item.xpath("//table[@class='border']/tr/td/p/font").first.text.capitalize.chop
+		ward        = item.xpath("//table[@class='border']/tr/td/p/font").last.text.chop
 		item_title  = item.xpath('//table/tr/td/font/b').first.text
 		item_tables = item.xpath('//table')
 		raw_html    = item.xpath('//table')[2..item_tables.length]	

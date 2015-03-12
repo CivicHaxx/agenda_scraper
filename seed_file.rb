@@ -34,8 +34,10 @@ end.reject(&:nil?).uniq.flatten
 puts "I found #{meeting_ids.length} meeting IDs."
 
 meeting_ids.map do |id|
-  puts "Saving #{id} ✔ "
-	RawAgenda.new(id).save
+  if !File.exist?("agendas/#{id}.html")
+	  puts "Saving #{id} ✔ "
+		RawAgenda.new(id).save
+	end
 end
 
 #parser starts
